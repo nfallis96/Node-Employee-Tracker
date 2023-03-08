@@ -147,5 +147,53 @@ const addRole = () => {
     });
 };
 
+// addEmployee function
+const addEmployee = () => {
+    figlet("ADD  EMPLOYEE", function(err, res) {
+        if (err) {
+            console.log('Theres a mistake...');
+            console.dir(err);
+            return;
+        }
+        console.log(res)
+    })
+    inquirer.prompt([{
+            name: "first_name",
+            type: "input",
+            message: "What is the employee's first name"
+        },
+        {
+            name: "last_name",
+            type: "input",
+            message: "What is the employee's last name"
+        },
+        {
+            name: "role",
+            type: "list",
+            message: "What is the employee's role?",
+            choices: selectRole()
+        },
+        {
+            name: "choice",
+            type: "list",
+            message: "Who is this employee's manager?",
+            choices: selectManager()
+        }
+    ]).then(function(val) {
+        const roleId = selectRole().indexOf(val.role) + 1;
+        const managerId = selectManager().indexOf(val.choice) + 1;
+        db.query("INSERT INTO employees SET ?", {
+            first_name: val.first_name,
+            last_name: val.last_name,
+            manager_id: managerId,
+            role_id: roleId
+        }, function(err) {
+            if (err) throw err
+            console.table(val)
+            startPrompt()
+        })
+    })
+};
+
 
 
