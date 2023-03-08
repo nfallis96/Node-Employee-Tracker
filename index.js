@@ -61,6 +61,7 @@ const startPrompt = () => {
 // view all departments============================================
 const viewAllDepartments = () => {
     const query = `SELECT * FROM departments`;
+    console.log("VIEWING ALL DEPARTMENTS")
     db.query(query,
         function(err, res) {
             if (err) throw err
@@ -72,6 +73,7 @@ const viewAllDepartments = () => {
 // viewAllRoles function
 const viewAllRoles = () => {
     const query = `SELECT roles.id, roles.title, roles.salary FROM roles`;
+    console.log("VIEWING ALL ROLES")
     db.query(query,
         function(err, res) {
             if (err) throw err
@@ -79,4 +81,17 @@ const viewAllRoles = () => {
             startPrompt()
         })
 };
+
+// viewAllEmployees function
+const viewAllEmployees = () => {
+    console.log("VIEWING ALL EMPLOYEES")
+    const query = `SELECT employees.id, employees.first_name, employees.last_name, departments.name, roles.title, roles.salary, CONCAT(e.first_name, ' ' ,e.last_name) AS Manager FROM employees INNER JOIN roles on roles.id = employees.role_id INNER JOIN departments on departments.id = roles.department_id left join employees e on employees.manager_id = e.id;`;
+    db.query(query,
+        function(err, res) {
+            if (err) throw err
+            console.table(res)
+            startPrompt()
+        })
+};
+
 
