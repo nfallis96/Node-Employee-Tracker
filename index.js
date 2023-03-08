@@ -96,6 +96,7 @@ const viewAllEmployees = () => {
 
 // addDepartment function
 const addDepartment = () => {
+    console.log("ADD ALL DEPARTMENTS")
     inquirer.prompt([{
         name: "Name",
         type: "input",
@@ -113,6 +114,37 @@ const addDepartment = () => {
             }
         )
     })
+};
+
+// addRole function
+const addRole = () => {
+    console.log("ADD ALL ROLES")
+    const query = `SELECT roles.title, roles.salary FROM roles`;
+    db.query(query, function(err, res) {
+        inquirer.prompt([{
+                name: "Title",
+                type: "input",
+                message: "What is the name of the role?"
+            },
+            {
+                name: "Salary",
+                type: "input",
+                message: "What is the Salary?"
+            }
+        ]).then(function(res) {
+            db.query(
+                "INSERT INTO roles SET ?", {
+                    title: res.Title,
+                    salary: res.Salary,
+                },
+                function(err) {
+                    if (err) throw err
+                    console.table(res);
+                    startPrompt();
+                }
+            )
+        });
+    });
 };
 
 
