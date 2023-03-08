@@ -94,4 +94,26 @@ const viewAllEmployees = () => {
         })
 };
 
+// addDepartment function
+const addDepartment = () => {
+    inquirer.prompt([{
+        name: "Name",
+        type: "input",
+        message: "What department would you like to add?"
+    }]).then(function(res) {
+        const query = "INSERT INTO departments VALUES ?";
+        db.query(
+            query, {
+                name: res.Name
+            },
+            function(err) {
+                if (err) throw err
+                console.table(res);
+                startPrompt();
+            }
+        )
+    })
+};
+
+
 
