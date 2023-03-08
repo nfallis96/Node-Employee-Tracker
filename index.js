@@ -68,3 +68,15 @@ const viewAllDepartments = () => {
             startPrompt()
         })
 };
+
+// viewAllRoles function
+const viewAllRoles = () => {
+    const query = `SELECT roles.id, roles.title, roles.salary FROM roles`;
+    db.query(query,
+        function(err, res) {
+            if (err) throw err
+            console.table(res)
+            startPrompt()
+        })
+};
+
