@@ -1,14 +1,13 @@
-// modules needed
+// modules required
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const cTable = require('console.table');
-require('dotenv').config();
 
 // to link the SQL database
 const db = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "rootroot",
+    password: "",
     database: "etracker_db"
 });
 
@@ -18,7 +17,7 @@ db.connect(function (err) {
     startPrompt();
 });
 
-// For startPrompt function 
+// For startPrompt 
 const startPrompt = () => {
     return inquirer.prompt([{
         name: 'action',
@@ -94,9 +93,9 @@ const viewAllEmployees = () => {
         })
 };
 
-// addDepartment function
+// add Department 
 const addDepartment = () => {
-    console.log("ADD ALL DEPARTMENTS")
+    console.log("ADD DEPARTMENT")
     inquirer.prompt([{
         name: "Name",
         type: "input",
@@ -116,9 +115,9 @@ const addDepartment = () => {
     })
 };
 
-// addRole function
+// add Role 
 const addRole = () => {
-    console.log("ADD ALL ROLES")
+    console.log("ADD ROLE")
     const query = `SELECT roles.title, roles.salary FROM roles`;
     db.query(query, function(err, res) {
         inquirer.prompt([{
@@ -147,16 +146,9 @@ const addRole = () => {
     });
 };
 
-// addEmployee function
+// add Employee 
 const addEmployee = () => {
-    figlet("ADD  EMPLOYEE", function(err, res) {
-        if (err) {
-            console.log('Theres a mistake...');
-            console.dir(err);
-            return;
-        }
-        console.log(res)
-    })
+    console.log("ADD EMPLOYEE")
     inquirer.prompt([{
             name: "first_name",
             type: "input",
@@ -194,6 +186,77 @@ const addEmployee = () => {
         })
     })
 };
+
+// update Employee 
+const updateEmployee = () => {
+    console.log("UPDATE EMPLOYEE")
+    const query = `SELECT employees.last_name, roles.title FROM employees JOIN roles ON employees.role_id = roles.id`;
+    db.query(query, function(err, res) {
+        if (err) throw err
+        inquirer.prompt([{
+                name: "lastName",
+                type: "rawlist",
+                choices: function() {
+                    let lastName = [];
+                    for (var i = 0; i < res.length; i++) {
+                        lastName.push(res[i].last_name);
+                    }
+                    return lastName;
+                },
+                message: "What is the Employee's last name?",
+            },
+            {
+                name: "role",
+                type: "rawlist",
+                message: "What is the Employees new title?",
+                choices: selectRole()
+            },
+        ]).then(function(val) {
+            let roleId = selectRole().indexOf(val.role) + 1;
+            db.query("UPDATE employees SET ? WHERE ?", [{
+                    last_name: val.lastName,
+
+                }, {
+                    role_id: roleId
+
+                }],
+                function(err) {
+                    if (err) throw err
+                    console.table(val)
+                    startPrompt()
+                })
+        });
+    });
+};
+
+// select Role FOR add/update employee prompt 
+let roleArr = [];
+const selectRole = () => {
+    console.log("SELECT ROLE")
+    const query = "SELECT * FROM roles";
+    db.query(query, function(err, res) {
+        if (err) throw err
+        for (var i = 0; i < res.length; i++) {
+            roleArr.push(res[i].title);
+        }
+    })
+    return roleArr;
+};
+
+// select Manager FOR add Employee prompt
+let managersArr = [];
+const selectManager = () => {
+    console.log("SELECT MANAGER")
+    const query = `SELECT first_name, last_name FROM employees WHERE manager_id IS NULL`;
+    db.query(query, function(err, res) {
+        if (err) throw err
+        for (var i = 0; i < res.length; i++) {
+            managersArr.push(res[i].first_name);
+        }
+    })
+    return managersArr;
+};
+
 
 
 
